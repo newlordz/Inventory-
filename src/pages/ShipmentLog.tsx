@@ -39,14 +39,15 @@ export const ShipmentLog: React.FC = () => {
                     <p className="text-secondary mt-1">Review all historical incoming hardware shipments and supplier costs.</p>
                 </div>
 
-                <div className="relative">
+                <div className="relative" style={{ minWidth: '0' }}>
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                     <input
                         type="text"
                         placeholder="Search shipments..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 py-2 text-sm bg-card/40 w-64 border border-light/10 rounded-md text-white focus:outline-none focus:border-accent-blue transition-colors"
+                        className="pl-9 py-2 text-sm bg-card/40 border border-light/10 rounded-md text-white focus:outline-none focus:border-accent-blue transition-colors"
+                        style={{ width: '100%', maxWidth: '100%' }}
                     />
                 </div>
             </div>

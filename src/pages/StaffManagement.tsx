@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { ShieldCheck, Plus, UserPlus } from 'lucide-react';
+import './StaffManagement.css';
 
 export const StaffManagement: React.FC = () => {
     const { staff, addStaff } = useAppContext();
@@ -32,9 +33,9 @@ export const StaffManagement: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="staff-management-grid">
                 {/* Add Staff Form */}
-                <div className="glass-panel p-6 lg:col-span-1 h-fit">
+                <div className="glass-panel p-6 staff-form-panel">
                     <div className="flex items-center gap-2 mb-4">
                         <UserPlus size={20} className="text-accent-blue" />
                         <h3 className="text-lg font-bold">Create Staff Member</h3>
@@ -62,7 +63,7 @@ export const StaffManagement: React.FC = () => {
                 </div>
 
                 {/* Staff Roster List */}
-                <div className="glass-panel p-6 lg:col-span-2">
+                <div className="glass-panel p-6 staff-table-panel">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-bold">Authorized Employees</h3>
                         <span className="badge blue">{staff.length} Total</span>

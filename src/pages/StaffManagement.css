@@ -1,0 +1,23 @@
+.staff-management-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.staff-form-panel {
+    height: fit-content;
+}
+
+@media (min-width: 1024px) {
+    .staff-management-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .staff-form-panel {
+        grid-column: span 1 / span 1;
+    }
+
+    .staff-table-panel {
+        grid-column: span 2 / span 2;
+    }
+}

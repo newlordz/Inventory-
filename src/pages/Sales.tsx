@@ -51,7 +51,7 @@ export const Sales: React.FC = () => {
             {showForm && (
                 <div className="glass-panel p-6 animate-fade-in border-l-4 border-l-accent-blue">
                     <h3 className="font-bold text-lg mb-4">New Sale Entry</h3>
-                    <form onSubmit={handleRecordSale} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <form onSubmit={handleRecordSale} className="sales-form-grid">
                         <div className="form-group mb-0">
                             <label>Product</label>
                             <select
