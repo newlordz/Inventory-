@@ -1,0 +1,45 @@
+.shipments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.shipment-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.shipments-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .shipments-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .shipments-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.shipment-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon.bg-glass {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
