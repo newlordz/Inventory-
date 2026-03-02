@@ -17,7 +17,7 @@ export const Dashboard: React.FC = () => {
             <div className="flex justify-between items-end mb-8">
                 <div>
                     <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Owner Dashboard</h2>
-                    <p className="text-secondary">Welcome back to the OSIL Technology Business Portal.</p>
+                    <p className="text-secondary">Welcome back to the OSIL Technologies Business Portal.</p>
                 </div>
             </div>
             {/* Stats Grid */}
@@ -28,7 +28,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div className="stat-details">
                         <p className="stat-label">Total Revenue</p>
-                        <h3 className="stat-value">${totalRevenue.toFixed(2)}</h3>
+                        <h3 className="stat-value">GH₵{totalRevenue.toFixed(2)}</h3>
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@ export const Dashboard: React.FC = () => {
                                         <td><span className="text-muted">{sale.id}</span></td>
                                         <td className="font-medium">{sale.customerName}</td>
                                         <td>{format(new Date(sale.date), 'MMM dd, yyyy')}</td>
-                                        <td className="font-bold text-gradient">${sale.totalAmount.toFixed(2)}</td>
+                                        <td className="font-bold text-gradient">GH₵{sale.totalAmount.toFixed(2)}</td>
                                         <td><span className="badge success">Completed</span></td>
                                     </tr>
                                 ))}

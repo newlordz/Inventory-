@@ -65,7 +65,7 @@ export const Login: React.FC = () => {
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-blue to-purple-600 mx-auto flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(14,165,233,0.3)] border border-white/10">
                         <Cpu size={36} className="text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-center mb-1">OSIL Technology Business Portal</h1>
+                    <h1 className="text-2xl font-bold text-center mb-1">OSIL Technologies Business Portal</h1>
                     <p className="text-secondary text-sm">Select your authorization level</p>
                 </div>
 

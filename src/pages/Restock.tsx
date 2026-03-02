@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
+import type { InventoryItem } from '../types';
 import { format } from 'date-fns';
-import { PackagePlus, Search, ArrowUpRight } from 'lucide-react';
+import { PackagePlus, Search, ArrowUpRight, Edit2, Check, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './Restock.css';
 
 export const Restock: React.FC = () => {
-    const { restocks, inventory, addRestock, addNewEquipment } = useAppContext();
+    const { restocks, inventory, addRestock, addNewEquipment, updateInventoryItem } = useAppContext();
     const [showForm, setShowForm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Edit State
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editForm, setEditForm] = useState<{ name: string, category: string, price: number, stockLevel: number }>({ name: '', category: '', price: 0, stockLevel: 0 });
 
     // Form State
     const [isNewEquipment, setIsNewEquipment] = useState(false);
@@ -27,7 +32,29 @@ export const Restock: React.FC = () => {
         if (inventory.length > 0 && !itemId) {
             setItemId(inventory[0].id);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inventory]);
+
+    const handleEditStart = (item: InventoryItem) => {
+        setEditingId(item.id);
+        setEditForm({
+            name: item.name,
+            category: item.category,
+            price: item.price,
+            stockLevel: item.stockLevel
+        });
+    };
+
+    const handleEditSave = () => {
+        if (editingId) {
+            updateInventoryItem(editingId, editForm);
+            setEditingId(null);
+        }
+    };
+
+    const handleEditCancel = () => {
+        setEditingId(null);
+    };
 
     const handleRecordRestock = (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,7 +100,7 @@ export const Restock: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
                 <div>
                     <h2 className="text-2xl font-bold">Inventory & Restock</h2>
-                    <p className="text-secondary">Manage OSIL Technology inventory and log incoming shipments.</p>
+                    <p className="text-secondary">Manage OSIL Technologies inventory and log incoming shipments.</p>
                 </div>
                 <button
                     className="btn-primary"
@@ -150,7 +177,7 @@ export const Restock: React.FC = () => {
                                     <label>Equipment Name</label>
                                     <input
                                         type="text"
-                                        placeholder="e.g. OSIL Technology Smart Lock"
+                                        placeholder="e.g. OSIL Technologies Smart Lock"
                                         value={newItemName}
                                         onChange={(e) => setNewItemName(e.target.value)}
                                         required
@@ -169,7 +196,7 @@ export const Restock: React.FC = () => {
                                     />
                                 </div>
                                 <div className="form-group mb-0 lg-col-span-1">
-                                    <label>Retail Price ($)</label>
+                                    <label>Retail Price (GH₵)</label>
                                     <input
                                         type="number"
                                         min="0"
@@ -224,7 +251,7 @@ export const Restock: React.FC = () => {
                         </div>
 
                         <div className="form-group mb-0 lg-col-span-1">
-                            <label>Unit Cost ($)</label>
+                            <label>Unit Cost (GH₵)</label>
                             <input
                                 type="number"
                                 min="0"
@@ -268,8 +295,10 @@ export const Restock: React.FC = () => {
                                     <th>Item ID</th>
                                     <th>Equipment Name</th>
                                     <th>Category</th>
+                                    <th>Price</th>
                                     <th>Stock Level</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -280,18 +309,41 @@ export const Restock: React.FC = () => {
                                         item.category.toLowerCase().includes(searchQuery.toLowerCase())
                                     )
                                     .map(item => {
-                                        const isLowSotck = item.stockLevel <= item.reorderPoint;
+                                        const isLowStock = item.stockLevel <= item.reorderPoint;
+                                        const isEditing = editingId === item.id;
                                         return (
                                             <tr key={item.id}>
                                                 <td><span className="text-muted text-sm">{item.id}</span></td>
-                                                <td className="font-medium">{item.name}</td>
-                                                <td><span className="badge">{item.category}</span></td>
-                                                <td className="font-bold">{item.stockLevel}</td>
+                                                {isEditing ? (
+                                                    <>
+                                                        <td><input type="text" className="inset-input py-1 px-2 text-sm max-w-[150px]" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} /></td>
+                                                        <td><input type="text" className="inset-input py-1 px-2 text-sm max-w-[100px]" value={editForm.category} onChange={e => setEditForm({ ...editForm, category: e.target.value })} /></td>
+                                                        <td>GH₵ <input type="number" className="inset-input py-1 px-2 text-sm max-w-[80px]" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: Number(e.target.value) })} /></td>
+                                                        <td><input type="number" className="inset-input py-1 px-2 text-sm max-w-[80px]" value={editForm.stockLevel} onChange={e => setEditForm({ ...editForm, stockLevel: Number(e.target.value) })} /></td>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <td className="font-medium">{item.name}</td>
+                                                        <td><span className="badge">{item.category}</span></td>
+                                                        <td>GH₵{item.price?.toFixed(2) || '0.00'}</td>
+                                                        <td className="font-bold">{item.stockLevel}</td>
+                                                    </>
+                                                )}
                                                 <td>
-                                                    {isLowSotck ? (
+                                                    {isLowStock ? (
                                                         <span className="badge danger">Low Stock</span>
                                                     ) : (
                                                         <span className="badge success">Optimal</span>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {isEditing ? (
+                                                        <div className="flex gap-2">
+                                                            <button onClick={handleEditSave} className="text-success hover:text-white"><Check size={16} /></button>
+                                                            <button onClick={handleEditCancel} className="text-danger hover:text-white"><X size={16} /></button>
+                                                        </div>
+                                                    ) : (
+                                                        <button onClick={() => handleEditStart(item)} className="text-accent hover:text-white"><Edit2 size={16} /></button>
                                                     )}
                                                 </td>
                                             </tr>
@@ -330,7 +382,7 @@ export const Restock: React.FC = () => {
                                     </div>
                                     <div className="shipment-footer">
                                         <span>{format(new Date(restock.date), 'MMM dd, yyyy')}</span>
-                                        <span className="shipment-total">Total: ${(restock.costPerUnit * restock.quantityAdded).toFixed(2)}</span>
+                                        <span className="shipment-total">Total: GH₵{(restock.costPerUnit * restock.quantityAdded).toFixed(2)}</span>
                                     </div>
                                 </div>
                             );

@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { ShieldCheck, Plus, UserPlus } from 'lucide-react';
+import type { StaffMember } from '../types';
+import { ShieldCheck, Plus, UserPlus, Edit2, Check, X } from 'lucide-react';
 import './StaffManagement.css';
 
 export const StaffManagement: React.FC = () => {
-    const { staff, addStaff } = useAppContext();
+    const { staff, addStaff, updateStaffItem } = useAppContext();
     const [newStaffName, setNewStaffName] = useState('');
+    const [newStaffNumber, setNewStaffNumber] = useState('');
+
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editForm, setEditForm] = useState({ name: '', staffNumber: '' });
 
     const generateStaffNumber = () => {
         // Generates a random 5 digit string
@@ -16,9 +21,26 @@ export const StaffManagement: React.FC = () => {
         e.preventDefault();
         if (!newStaffName.trim()) return;
 
-        const staffNumber = generateStaffNumber();
+        const staffNumber = newStaffNumber.trim() || generateStaffNumber();
         addStaff(newStaffName, staffNumber);
         setNewStaffName('');
+        setNewStaffNumber('');
+    };
+
+    const handleEditStart = (employee: StaffMember) => {
+        setEditingId(employee.id);
+        setEditForm({ name: employee.name, staffNumber: employee.staffNumber });
+    };
+
+    const handleEditSave = () => {
+        if (editingId) {
+            updateStaffItem(editingId, editForm);
+            setEditingId(null);
+        }
+    };
+
+    const handleEditCancel = () => {
+        setEditingId(null);
     };
 
     return (
@@ -53,6 +75,16 @@ export const StaffManagement: React.FC = () => {
                             />
                         </div>
 
+                        <div className="form-group mb-4">
+                            <label>Staff Number (Optional)</label>
+                            <input
+                                type="text"
+                                value={newStaffNumber}
+                                onChange={(e) => setNewStaffNumber(e.target.value)}
+                                placeholder="Leave blank to auto-generate"
+                            />
+                        </div>
+
                         <button type="submit" className="btn-primary w-full">
                             <Plus size={18} /> Add Employee
                         </button>
@@ -77,24 +109,47 @@ export const StaffManagement: React.FC = () => {
                                     <th>Secure Staff Number</th>
                                     <th>Role Permissions</th>
                                     <th>Date Added</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {staff.length > 0 ? (
-                                    staff.map((employee) => (
-                                        <tr key={employee.id}>
-                                            <td className="font-medium text-white">{employee.name}</td>
-                                            <td>
-                                                <code className="bg-dark px-2 py-1 rounded text-accent-blue border border-light font-mono">
-                                                    {employee.staffNumber}
-                                                </code>
-                                            </td>
-                                            <td><span className="badge warning">Sales Only</span></td>
-                                            <td className="text-secondary">
-                                                {new Date(employee.dateJoined).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))
+                                    staff.map((employee) => {
+                                        const isEditing = editingId === employee.id;
+                                        return (
+                                            <tr key={employee.id}>
+                                                {isEditing ? (
+                                                    <>
+                                                        <td><input type="text" className="inset-input py-1 px-2 text-sm w-full" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} /></td>
+                                                        <td><input type="text" className="inset-input py-1 px-2 text-sm max-w-[120px]" value={editForm.staffNumber} onChange={e => setEditForm({ ...editForm, staffNumber: e.target.value })} /></td>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <td className="font-medium text-white">{employee.name}</td>
+                                                        <td>
+                                                            <code className="bg-dark px-2 py-1 rounded text-accent-blue border border-light font-mono">
+                                                                {employee.staffNumber}
+                                                            </code>
+                                                        </td>
+                                                    </>
+                                                )}
+                                                <td><span className="badge warning">Sales Only</span></td>
+                                                <td className="text-secondary">
+                                                    {new Date(employee.dateJoined).toLocaleDateString()}
+                                                </td>
+                                                <td>
+                                                    {isEditing ? (
+                                                        <div className="flex gap-2">
+                                                            <button onClick={handleEditSave} className="text-success hover:text-white"><Check size={16} /></button>
+                                                            <button onClick={handleEditCancel} className="text-danger hover:text-white"><X size={16} /></button>
+                                                        </div>
+                                                    ) : (
+                                                        <button onClick={() => handleEditStart(employee)} className="text-accent hover:text-white"><Edit2 size={16} /></button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 ) : (
                                     <tr>
                                         <td colSpan={4} className="text-center py-8 text-secondary">

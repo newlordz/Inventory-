@@ -11,6 +11,7 @@ export interface SaleTransaction {
     id: string;
     itemId: string;
     quantity: number;
+    amountPaid?: number;
     totalAmount: number;
     customerName: string;
     date: string;

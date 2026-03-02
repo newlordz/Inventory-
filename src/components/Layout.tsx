@@ -49,7 +49,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue to-purple-600 flex items-center justify-center shadow-lg shadow-accent-blue/20">
                                 <Cpu size={24} className="text-white" />
                             </div>
-                            <span className="text-gradient font-bold text-xl">OSIL Technology</span>
+                            <span className="text-gradient font-bold text-xl">OSIL Technologies</span>
                         </div>
                     </div>
                     <button className="mobile-close" onClick={() => setSidebarOpen(false)}>

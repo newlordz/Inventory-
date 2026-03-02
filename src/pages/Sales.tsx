@@ -11,11 +11,13 @@ export const Sales: React.FC = () => {
     const [itemId, setItemId] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [customerName, setCustomerName] = useState('');
+    const [amountPaid, setAmountPaid] = useState<number | ''>('');
 
     useEffect(() => {
         if (inventory.length > 0 && !itemId) {
             setItemId(inventory[0].id);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inventory]);
 
     const handleRecordSale = (e: React.FormEvent) => {
@@ -24,12 +26,14 @@ export const Sales: React.FC = () => {
         addSale({
             itemId,
             quantity,
-            customerName
+            customerName,
+            amountPaid: Number(amountPaid) || undefined
         });
 
         setShowForm(false);
         setQuantity(1);
         setCustomerName('');
+        setAmountPaid('');
     };
 
     return (
@@ -61,7 +65,7 @@ export const Sales: React.FC = () => {
                             >
                                 {inventory.map(item => (
                                     <option key={item.id} value={item.id}>
-                                        {item.name} (${item.price}) - Qty: {item.stockLevel}
+                                        {item.name} (GH₵{item.price}) - Qty: {item.stockLevel}
                                     </option>
                                 ))}
                             </select>
@@ -89,7 +93,19 @@ export const Sales: React.FC = () => {
                             />
                         </div>
 
-                        <button type="submit" className="btn-primary w-full h-[42px]">
+                        <div className="form-group mb-0">
+                            <label>Amount Paid (GH₵) <span className="text-secondary text-xs opacity-70">(Optional, leaves balance if partial)</span></label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="Full amount if empty"
+                                value={amountPaid}
+                                onChange={(e) => setAmountPaid(e.target.value === '' ? '' : Number(e.target.value))}
+                            />
+                        </div>
+
+                        <button type="submit" className="btn-primary w-full h-[42px] mt-4">
                             Confirm Sale
                         </button>
                     </form>
@@ -124,12 +140,16 @@ export const Sales: React.FC = () => {
                                 <th>Date</th>
                                 <th>Quantity</th>
                                 <th>Amount</th>
+                                <th>Balance Owed</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {sales.map(sale => {
                                 const item = inventory.find(i => i.id === sale.itemId);
+                                const balance = sale.amountPaid !== undefined ? sale.totalAmount - sale.amountPaid : 0;
+                                const isPartial = balance > 0;
+
                                 return (
                                     <tr key={sale.id}>
                                         <td><span className="text-muted">{sale.id}</span></td>
@@ -137,8 +157,15 @@ export const Sales: React.FC = () => {
                                         <td>{sale.customerName}</td>
                                         <td>{format(new Date(sale.date), 'MMM dd, yyyy HH:mm')}</td>
                                         <td>{sale.quantity}</td>
-                                        <td className="font-bold text-gradient">${sale.totalAmount.toFixed(2)}</td>
-                                        <td><span className="badge success">Paid</span></td>
+                                        <td className="font-bold text-gradient">GH₵{sale.totalAmount.toFixed(2)}</td>
+                                        <td className={isPartial ? 'text-warning font-medium' : 'text-muted'}>
+                                            {isPartial ? `GH₵${balance.toFixed(2)}` : 'None'}
+                                        </td>
+                                        <td>
+                                            <span className={`badge ${isPartial ? 'warning' : 'success'}`}>
+                                                {isPartial ? 'Partial/Pending' : 'Paid'}
+                                            </span>
+                                        </td>
                                     </tr>
                                 );
                             })}
