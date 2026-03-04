@@ -17,6 +17,7 @@ interface AppContextType {
     addStaff: (name: string, staffNumber: string) => void;
     updateInventoryItem: (id: string, updates: Partial<InventoryItem>) => void;
     updateStaffItem: (id: string, updates: Partial<StaffMember>) => void;
+    updateSale: (id: string, updates: Partial<SaleTransaction>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -96,6 +97,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setInventory(inventory.map(inv => inv.id === id ? { ...inv, ...updates } : inv));
     };
 
+    const updateSale = (id: string, updates: Partial<SaleTransaction>) => {
+        setSales(sales.map(s => s.id === id ? { ...s, ...updates } : s));
+    };
+
     const addSale = (saleData: Omit<SaleTransaction, 'id' | 'date' | 'totalAmount'>) => {
         const item = inventory.find(i => i.id === saleData.itemId);
         if (!item) return;
@@ -163,7 +168,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     return (
-        <AppContext.Provider value={{ inventory, sales, restocks, staff, role, login, logout, addSale, addRestock, addNewEquipment, addStaff, updateInventoryItem, updateStaffItem }}>
+        <AppContext.Provider value={{ inventory, sales, restocks, staff, role, login, logout, addSale, addRestock, addNewEquipment, addStaff, updateInventoryItem, updateStaffItem, updateSale }}>
             {children}
         </AppContext.Provider>
     );

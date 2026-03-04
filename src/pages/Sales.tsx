@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { format } from 'date-fns';
-import { PlusCircle, Search, Filter } from 'lucide-react';
+import { PlusCircle, Search, Filter, Edit } from 'lucide-react';
+import type { SaleTransaction } from '../types';
 
 export const Sales: React.FC = () => {
-    const { sales, inventory, addSale } = useAppContext();
+    const { sales, inventory, addSale, updateSale } = useAppContext();
     const [showForm, setShowForm] = useState(false);
 
     // Form State
@@ -12,6 +13,10 @@ export const Sales: React.FC = () => {
     const [quantity, setQuantity] = useState(1);
     const [customerName, setCustomerName] = useState('');
     const [amountPaid, setAmountPaid] = useState<number | ''>('');
+
+    // Edit State
+    const [editingSale, setEditingSale] = useState<SaleTransaction | null>(null);
+    const [editAmountPaid, setEditAmountPaid] = useState<number | ''>('');
 
     useEffect(() => {
         if (inventory.length > 0 && !itemId) {
@@ -34,6 +39,22 @@ export const Sales: React.FC = () => {
         setQuantity(1);
         setCustomerName('');
         setAmountPaid('');
+    };
+
+    const handleUpdatePayment = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingSale) return;
+
+        const currentPaid = editingSale.amountPaid || 0;
+        const additionalAmount = Number(editAmountPaid) || 0;
+        const newTotalPaid = currentPaid + additionalAmount;
+
+        // Prevent paying more than total amount
+        const finalAmount = Math.min(newTotalPaid, editingSale.totalAmount);
+
+        updateSale(editingSale.id, { amountPaid: finalAmount });
+        setEditingSale(null);
+        setEditAmountPaid('');
     };
 
     return (
@@ -142,6 +163,7 @@ export const Sales: React.FC = () => {
                                 <th>Amount</th>
                                 <th>Balance Owed</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -166,6 +188,20 @@ export const Sales: React.FC = () => {
                                                 {isPartial ? 'Partial/Pending' : 'Paid'}
                                             </span>
                                         </td>
+                                        <td>
+                                            {isPartial && (
+                                                <button
+                                                    className="btn-secondary text-xs py-1 px-2 flex items-center gap-1"
+                                                    onClick={() => {
+                                                        setEditingSale(sale);
+                                                        setEditAmountPaid('');
+                                                    }}
+                                                >
+                                                    <Edit size={12} />
+                                                    Pay
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 );
                             })}
@@ -173,6 +209,55 @@ export const Sales: React.FC = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Update Payment Modal */}
+            {editingSale && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-card w-full max-w-sm rounded-xl border border-white/10 p-6 animate-fade-in shadow-2xl">
+                        <h3 className="font-bold text-xl mb-4 text-gradient">Update Payment</h3>
+
+                        <div className="mb-6 space-y-3">
+                            <div className="flex justify-between py-2 border-b border-white/5">
+                                <span className="text-secondary">Total Amount</span>
+                                <span className="font-medium">GH₵{editingSale.totalAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-white/5">
+                                <span className="text-secondary">Current Paid</span>
+                                <span className="font-medium text-success">GH₵{(editingSale.amountPaid || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-2 bg-warning/10 px-3 rounded-lg border border-warning/20">
+                                <span className="text-warning font-medium">Outstanding Balance Owed</span>
+                                <span className="font-bold text-warning">GH₵{(editingSale.totalAmount - (editingSale.amountPaid || 0)).toFixed(2)}</span>
+                            </div>
+
+                            <form onSubmit={handleUpdatePayment} className="pt-4">
+                                <div className="form-group mb-4">
+                                    <label>Additional Payment Amount (GH₵)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max={(editingSale.totalAmount - (editingSale.amountPaid || 0)).toFixed(2)}
+                                        step="0.01"
+                                        className="w-full text-lg p-3"
+                                        value={editAmountPaid}
+                                        onChange={(e) => setEditAmountPaid(e.target.value === '' ? '' : Number(e.target.value))}
+                                        required
+                                    />
+                                    <p className="text-xs text-secondary mt-1">Enter the new amount being paid today.</p>
+                                </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                    <button type="button" className="btn-secondary" onClick={() => setEditingSale(null)}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn-primary">
+                                        Save Updates
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
